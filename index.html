@@ -7,7 +7,7 @@
 <style>
 :root{
   --bg:#0f172a;
-  --card: rgba(20,25,40,0.9);
+  --card: rgba(20,25,40,0.95);
   --muted:#94a3b8;
   --green:#16a34a;
   --orange:#f59e0b;
@@ -15,7 +15,7 @@
   --accent1:#7c3aed;
   --accent2:#06b6d4;
   --text:#f1f5f9;
-  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  font-family: 'Inter', sans-serif;
 }
 *{box-sizing:border-box;transition: all 0.2s ease;}
 html,body{height:100%}
@@ -31,7 +31,8 @@ thead th{text-align:left;padding:12px 14px;color:var(--muted);font-weight:600;fo
 tbody td{padding:10px 14px;border-top:1px solid rgba(255,255,255,0.1);}
 .name{font-weight:700;}
 .date{font-size:13px;color:var(--muted);}
-.status{display:inline-block;padding:6px 12px;border-radius:999px;font-weight:700;font-size:13px;color:white;transition: background 0.3s;}
+.status{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:999px;font-weight:700;font-size:13px;color:white;transition: background 0.3s;}
+.status-icon{width:10px;height:10px;border-radius:50%;display:inline-block;}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:0;cursor:pointer;font-weight:700;font-size:13px;transition: transform 0.2s, background 0.2s;}
 .btn:hover{transform:translateY(-2px);}
 .btn-primary{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:white;box-shadow:0 2px 8px rgba(0,0,0,0.3);}
@@ -39,8 +40,8 @@ tbody td{padding:10px 14px;border-top:1px solid rgba(255,255,255,0.1);}
 .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 .small{font-size:13px;padding:6px 10px;}
 .muted{color:var(--muted);}
-input[type="date"]{padding:4px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:var(--text);transition: all 0.2s;}
-input[type="date"]:focus{outline:none;border-color:var(--accent2);box-shadow:0 0 6px var(--accent2);}
+input[type="date"], input[type="text"]{padding:4px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:var(--text);transition: all 0.2s;}
+input:focus{outline:none;border-color:var(--accent2);box-shadow:0 0 6px var(--accent2);}
 @media (max-width:640px){
   thead{display:none}
   table,tbody,thead,tr{display:block;width:100%}
@@ -49,6 +50,7 @@ input[type="date"]:focus{outline:none;border-color:var(--accent2);box-shadow:0 0
   .action-group{flex-direction:column;gap:6px;align-items:flex-start;margin-top:6px;}
 }
 footer{margin-top:14px;color:var(--muted);font-size:13px;text-align:center}
+.user-form{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
 </style>
 </head>
 <body>
@@ -60,6 +62,13 @@ footer{margin-top:14px;color:var(--muted);font-size:13px;text-align:center}
 </div>
 <div class="last-open" id="lastOpened">Dernière ouverture : —</div>
 </header>
+
+<!-- Champ numéro SNCB -->
+<div class="card user-form">
+<input type="text" id="sncbInput" placeholder="Entrez votre numéro SNCB" aria-label="Numéro SNCB">
+<button id="sncbConfirm" class="btn btn-primary small">Valider</button>
+</div>
+
 <section class="card">
 <h3 style="margin:0 0 12px 0">Liste des engins</h3>
 <table>
@@ -67,7 +76,7 @@ footer{margin-top:14px;color:var(--muted);font-size:13px;text-align:center}
 <tbody id="engines"></tbody>
 </table>
 <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-<input type="text" id="newEngine" placeholder="Ajouter engin" class="small" />
+<input type="text" id="newEngine" placeholder="Ajouter engin" class="small" aria-label="Ajouter engin"/>
 <button id="addEngine" class="btn btn-primary small">Ajouter</button>
 <button id="resetAll" class="btn btn-ghost small">Réinitialiser toutes les dates</button>
 <div style="flex:1"></div>
@@ -81,7 +90,6 @@ footer{margin-top:14px;color:var(--muted);font-size:13px;text-align:center}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-// ======= FIREBASE CONFIG =======
 const firebaseConfig = {
   apiKey: "AIzaSyBtRfiPJXTd-_RA73DPMpAcd15P7TcwHy0",
   authDomain: "app-suivi-29ec4.firebaseapp.com",
@@ -95,23 +103,25 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // ======= LOGIQUE DE L'APP =======
-let numSNCB = localStorage.getItem('numSNCB');
-async function askUser(){
-  numSNCB = prompt('Entrez votre numéro SNCB :', numSNCB || '');
-  if(!numSNCB) return askUser();
+let numSNCB = null;
+
+const enginesList = ['HLE18','HLE13','M7','HVR M6','HVR i1','AM08','Micheline'];
+let data = {};
+
+document.getElementById('sncbConfirm').onclick = async () => {
+  const input = document.getElementById('sncbInput').value.trim();
+  if(!input) return alert("Entrez votre numéro SNCB !");
+  numSNCB = input;
   localStorage.setItem('numSNCB', numSNCB);
   await loadEngines();
-}
-
-let enginesList = ['HLE18','HLE13','M7','HVR M6','HVR i1','AM08','Micheline'];
-let data = {};
+  document.querySelector('.user-form').style.display = 'none';
+};
 
 async function loadEngines(){
   const docRef = doc(db, 'conducteurs', numSNCB);
   const docSnap = await getDoc(docRef);
   if(docSnap.exists()){ 
     data = docSnap.data(); 
-    enginesList = Array.from(new Set([...enginesList,...Object.keys(data)])); 
   }
   renderTable();
 }
@@ -126,6 +136,7 @@ function diffMonthsDays(start,end){
 }
 
 function renderTable(){
+  if(!numSNCB) return;
   document.getElementById('lastOpened').textContent = 'Dernière ouverture : '+new Date().toISOString().slice(0,10);
   const tbody=document.getElementById('engines'); tbody.innerHTML='';
   enginesList.forEach(e=>{
@@ -134,14 +145,15 @@ function renderTable(){
     const tdDate=document.createElement('td'); tdDate.innerHTML=data[e]?'<div class="date">'+data[e]+'</div>':'<div class="date">—</div>';
     const tdElapsed=document.createElement('td'); 
     const span=document.createElement('span'); span.className='status';
+    const icon=document.createElement('span'); icon.className='status-icon';
     if(data[e]){
       const diff=diffMonthsDays(new Date(data[e]),new Date());
       span.textContent=diff.months+' mois'+(diff.days>0?' et '+diff.days+' j':'');
-      if(diff.months>=12) span.style.background='var(--red)';
-      else if(diff.months>=9) span.style.background='var(--orange)';
-      else span.style.background='var(--green)';
-    } else {span.textContent='Aucune donnée'; span.style.background='rgba(255,255,255,0.1)'; span.style.color='#f1f5f9';}
-    tdElapsed.appendChild(span);
+      if(diff.months>=12){span.style.background='var(--red)'; icon.style.background='var(--red)';}
+      else if(diff.months>=9){span.style.background='var(--orange)'; icon.style.background='var(--orange)';}
+      else {span.style.background='var(--green)'; icon.style.background='var(--green)';}
+    } else {span.textContent='Aucune donnée'; span.style.background='rgba(255,255,255,0.1)'; span.style.color='#f1f5f9'; icon.style.background='rgba(255,255,255,0.3)';}
+    span.prepend(icon); tdElapsed.appendChild(span);
 
     const tdAction=document.createElement('td'); tdAction.style.textAlign='right'; tdAction.className='action-group';
     const btnToday=document.createElement('button'); btnToday.textContent='Parcouru aujourd\'hui'; btnToday.className='btn btn-primary small';
@@ -167,7 +179,6 @@ function renderTable(){
   });
 }
 
-// ======= BOUTONS =======
 document.getElementById('addEngine').onclick=async ()=>{
   const val=document.getElementById('newEngine').value.trim();
   if(!val) return;
@@ -175,18 +186,20 @@ document.getElementById('addEngine').onclick=async ()=>{
   data[val] = null;
   document.getElementById('newEngine').value='';
   renderTable();
-  await setDoc(doc(db,'conducteurs',numSNCB),{[val]:null},{merge:true});
+  if(numSNCB) await setDoc(doc(db,'conducteurs',numSNCB),{[val]:null},{merge:true});
 };
 
 document.getElementById('resetAll').onclick=async ()=>{
+  if(!numSNCB) return alert("Numéro SNCB requis");
   if(!confirm('Réinitialiser toutes les dates ?')) return;
   enginesList.forEach(e=>data[e]=null);
   renderTable();
   await setDoc(doc(db,'conducteurs',numSNCB),enginesList.reduce((acc,e)=>{acc[e]=null;return acc;},{}),{merge:true});
 };
 
-// ======= DEMARRAGE =======
-askUser();
+// Auto-load si déjà stocké
+const stored = localStorage.getItem('numSNCB');
+if(stored){ document.getElementById('sncbInput').value = stored; document.getElementById('sncbConfirm').click(); }
 </script>
 </body>
 </html>
