@@ -6,12 +6,12 @@
 <title>Suivi Connaissance – Matériel Ferroviaire</title>
 <style>
 :root{
-  --bg:#f5f5f5;          /* Fond clair */
-  --card:#ffffff;         /* Cartes blanches */
-  --text:#202124;         /* Texte principal foncé */
-  --muted:#5f6368;        /* Texte secondaire */
-  --primary:#1e88e5;      /* Bleu moderne */
-  --accent:#03dac6;       /* Cyan accent */
+  --bg:#f5f5f5;
+  --card:#ffffff;
+  --text:#202124;
+  --muted:#5f6368;
+  --primary:#1e88e5;
+  --accent:#03dac6;
   --green:#03dac6;
   --orange:#ffb300;
   --red:#cf6679;
@@ -41,48 +41,65 @@ tbody td{padding:8px 6px;border-top:1px solid rgba(0,0,0,0.05);}
 input[type="date"], input[type="text"]{padding:5px 8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:#fafafa;color:var(--text);}
 input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 4px var(--accent);}
 .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.user-form{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+footer{margin-top:12px;color:var(--muted);font-size:12px;text-align:center;}
+
+/* Responsive mobile avec data-label */
 @media (max-width:640px){
-  thead{display:none}
-  table,tbody,thead,tr{display:block;width:100%}
+  thead{display:none;}
+  table, tbody, thead, tr, td{display:block;width:100%;}
   tbody tr{display:flex;flex-direction:column;padding:8px 0;margin-bottom:6px;background:#ffffff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
-  tbody td{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;}
+  td{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;position:relative;}
+  td:before{
+    content:attr(data-label);
+    font-weight:600;
+    color: var(--muted);
+    display:inline-block;
+    width:120px;
+    flex-shrink:0;
+  }
   .action-group{flex-direction:column;gap:4px;align-items:flex-start;margin-top:4px;}
 }
-footer{margin-top:12px;color:var(--muted);font-size:12px;text-align:center;}
-.user-form{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
 </style>
-
 </head>
 <body>
 <div class="app">
 <header>
-<div>
-<div class="title">Suivi Connaissance – Matériel Ferroviaire</div>
-<div class="subtitle">Vue rapide — mise à jour automatique</div>
-</div>
-<div class="last-open" id="lastOpened">Dernière ouverture : —</div>
+  <div>
+    <div class="title">Suivi Connaissance – Matériel Ferroviaire</div>
+    <div class="subtitle">Vue rapide — mise à jour automatique</div>
+  </div>
+  <div class="last-open" id="lastOpened">Dernière ouverture : —</div>
 </header>
 
 <!-- Champ numéro SNCB -->
 <div class="card user-form">
-<input type="text" id="sncbInput" placeholder="Entrez votre numéro SNCB" aria-label="Numéro SNCB">
-<button id="sncbConfirm" class="btn btn-primary small">Valider</button>
+  <input type="text" id="sncbInput" placeholder="Entrez votre numéro SNCB" aria-label="Numéro SNCB">
+  <button id="sncbConfirm" class="btn btn-primary small">Valider</button>
 </div>
 
 <section class="card">
 <h3 style="margin:0 0 12px 0">Liste des engins</h3>
 <table>
-<thead><tr><th>Engin</th><th>Dernier parcours</th><th>Temps écoulé</th><th style="text-align:right">Action</th></tr></thead>
+<thead>
+<tr>
+<th>Engin</th>
+<th>Dernier parcours</th>
+<th>Temps écoulé</th>
+<th style="text-align:right">Action</th>
+</tr>
+</thead>
 <tbody id="engines"></tbody>
 </table>
 <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-<input type="text" id="newEngine" placeholder="Ajouter engin" class="small" aria-label="Ajouter engin"/>
-<button id="addEngine" class="btn btn-primary small">Ajouter</button>
-<button id="resetAll" class="btn btn-ghost small">Réinitialiser toutes les dates</button>
-<div style="flex:1"></div>
-<div class="muted">Codes : 🟢 &lt;9 mois — 🟠 9–11 — 🔴 ≥12</div>
+  <input type="text" id="newEngine" placeholder="Ajouter engin" class="small" aria-label="Ajouter engin"/>
+  <button id="addEngine" class="btn btn-primary small">Ajouter</button>
+  <button id="resetAll" class="btn btn-secondary small">Réinitialiser toutes les dates</button>
+  <div style="flex:1"></div>
+  <div class="muted">Codes : 🟢 &lt;9 mois — 🟠 9–11 — 🔴 ≥12</div>
 </div>
 </section>
+
 <footer class="muted">Chaque utilisateur a ses données individuelles stockées dans Firestore.</footer>
 </div>
 
@@ -102,9 +119,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ======= LOGIQUE DE L'APP =======
 let numSNCB = null;
-
 const enginesList = ['HLE18','HLE13','M7','HVR M6','HVR i1','AM08','Micheline'];
 let data = {};
 
@@ -141,9 +156,9 @@ function renderTable(){
   const tbody=document.getElementById('engines'); tbody.innerHTML='';
   enginesList.forEach(e=>{
     const tr=document.createElement('tr');
-    const tdName=document.createElement('td'); tdName.innerHTML='<div class="name">'+e+'</div>';
-    const tdDate=document.createElement('td'); tdDate.innerHTML=data[e]?'<div class="date">'+data[e]+'</div>':'<div class="date">—</div>';
-    const tdElapsed=document.createElement('td'); 
+    const tdName=document.createElement('td'); tdName.setAttribute('data-label','Engin'); tdName.innerHTML='<div class="name">'+e+'</div>';
+    const tdDate=document.createElement('td'); tdDate.setAttribute('data-label','Dernier parcours'); tdDate.innerHTML=data[e]?'<div class="date">'+data[e]+'</div>':'<div class="date">—</div>';
+    const tdElapsed=document.createElement('td'); tdElapsed.setAttribute('data-label','Temps écoulé');
     const span=document.createElement('span'); span.className='status';
     const icon=document.createElement('span'); icon.className='status-icon';
     if(data[e]){
@@ -152,10 +167,10 @@ function renderTable(){
       if(diff.months>=12){span.style.background='var(--red)'; icon.style.background='var(--red)';}
       else if(diff.months>=9){span.style.background='var(--orange)'; icon.style.background='var(--orange)';}
       else {span.style.background='var(--green)'; icon.style.background='var(--green)';}
-    } else {span.textContent='Aucune donnée'; span.style.background='rgba(255,255,255,0.1)'; span.style.color='#f1f5f9'; icon.style.background='rgba(255,255,255,0.3)';}
+    } else {span.textContent='Aucune donnée'; span.style.background='rgba(0,0,0,0.1)'; span.style.color='var(--text)'; icon.style.background='rgba(0,0,0,0.3)';}
     span.prepend(icon); tdElapsed.appendChild(span);
 
-    const tdAction=document.createElement('td'); tdAction.style.textAlign='right'; tdAction.className='action-group';
+    const tdAction=document.createElement('td'); tdAction.setAttribute('data-label','Action'); tdAction.style.textAlign='right'; tdAction.className='action-group';
     const btnToday=document.createElement('button'); btnToday.textContent='Parcouru aujourd\'hui'; btnToday.className='btn btn-primary small';
     btnToday.onclick=async ()=>{
       const today=new Date().toISOString().slice(0,10);
@@ -197,7 +212,6 @@ document.getElementById('resetAll').onclick=async ()=>{
   await setDoc(doc(db,'conducteurs',numSNCB),enginesList.reduce((acc,e)=>{acc[e]=null;return acc;},{}),{merge:true});
 };
 
-// Auto-load si déjà stocké
 const stored = localStorage.getItem('numSNCB');
 if(stored){ document.getElementById('sncbInput').value = stored; document.getElementById('sncbConfirm').click(); }
 </script>
