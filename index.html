@@ -41,7 +41,7 @@ tbody td{padding:8px 6px;border-top:1px solid rgba(0,0,0,0.05);}
 input[type="date"], input[type="text"]{padding:5px 8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:#fafafa;color:var(--text);}
 input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 4px var(--accent);}
 .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-.user-form{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.user-form{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
 footer{margin-top:12px;color:var(--muted);font-size:12px;text-align:center;}
 
 /* Responsive mobile avec data-label */
@@ -72,10 +72,11 @@ footer{margin-top:12px;color:var(--muted);font-size:12px;text-align:center;}
   <div class="last-open" id="lastOpened">Dernière ouverture : —</div>
 </header>
 
-<!-- Champ numéro SNCB -->
+<!-- Champ numéro SNCB avec bouton Déconnexion -->
 <div class="card user-form">
   <input type="text" id="sncbInput" placeholder="Entrez votre numéro SNCB" aria-label="Numéro SNCB">
   <button id="sncbConfirm" class="btn btn-primary small">Valider</button>
+  <button id="logoutBtn" class="btn btn-secondary small">Déconnexion</button>
 </div>
 
 <section class="card">
@@ -123,24 +124,40 @@ let numSNCB = null;
 const enginesList = ['HLE18','HLE13','M7','HVR M6','HVR i1','AM08','Micheline'];
 let data = {};
 
+// Valider numéro SNCB
 document.getElementById('sncbConfirm').onclick = async () => {
   const input = document.getElementById('sncbInput').value.trim();
   if(!input) return alert("Entrez votre numéro SNCB !");
   numSNCB = input;
   localStorage.setItem('numSNCB', numSNCB);
   await loadEngines();
-  document.querySelector('.user-form').style.display = 'none';
+  document.querySelector('.user-form').style.display = 'flex';
+  document.getElementById('sncbInput').style.display = 'none';
+  document.getElementById('sncbConfirm').style.display = 'none';
 };
 
+// Bouton Déconnexion
+document.getElementById('logoutBtn').onclick = () => {
+  localStorage.removeItem('numSNCB');
+  numSNCB = null;
+  data = {};
+  document.getElementById('sncbInput').value = '';
+  document.querySelector('.user-form').style.display = 'flex';
+  document.getElementById('sncbInput').style.display = 'inline-block';
+  document.getElementById('sncbConfirm').style.display = 'inline-block';
+  document.getElementById('engines').innerHTML = '';
+  document.getElementById('lastOpened').textContent = 'Dernière ouverture : —';
+};
+
+// Charger les données Firestore
 async function loadEngines(){
   const docRef = doc(db, 'conducteurs', numSNCB);
   const docSnap = await getDoc(docRef);
-  if(docSnap.exists()){ 
-    data = docSnap.data(); 
-  }
+  if(docSnap.exists()){ data = docSnap.data(); }
   renderTable();
 }
 
+// Calcul mois/jours écoulés
 function diffMonthsDays(start,end){
   if(!start || start> end) return {months:0,days:0};
   let years = end.getFullYear()-start.getFullYear();
@@ -150,6 +167,7 @@ function diffMonthsDays(start,end){
   return {months:Math.max(0,months),days:Math.max(0,dayDiff)};
 }
 
+// Affichage tableau
 function renderTable(){
   if(!numSNCB) return;
   document.getElementById('lastOpened').textContent = 'Dernière ouverture : '+new Date().toISOString().slice(0,10);
@@ -186,7 +204,6 @@ function renderTable(){
         renderTable();
       }
     };
-
     tdAction.appendChild(btnToday);
     tdAction.appendChild(inputDate);
     tr.appendChild(tdName); tr.appendChild(tdDate); tr.appendChild(tdElapsed); tr.appendChild(tdAction);
@@ -194,6 +211,7 @@ function renderTable(){
   });
 }
 
+// Ajouter engin
 document.getElementById('addEngine').onclick=async ()=>{
   const val=document.getElementById('newEngine').value.trim();
   if(!val) return;
@@ -204,6 +222,7 @@ document.getElementById('addEngine').onclick=async ()=>{
   if(numSNCB) await setDoc(doc(db,'conducteurs',numSNCB),{[val]:null},{merge:true});
 };
 
+// Réinitialiser toutes les dates
 document.getElementById('resetAll').onclick=async ()=>{
   if(!numSNCB) return alert("Numéro SNCB requis");
   if(!confirm('Réinitialiser toutes les dates ?')) return;
@@ -212,6 +231,7 @@ document.getElementById('resetAll').onclick=async ()=>{
   await setDoc(doc(db,'conducteurs',numSNCB),enginesList.reduce((acc,e)=>{acc[e]=null;return acc;},{}),{merge:true});
 };
 
+// Auto-load si déjà stocké
 const stored = localStorage.getItem('numSNCB');
 if(stored){ document.getElementById('sncbInput').value = stored; document.getElementById('sncbConfirm').click(); }
 </script>
