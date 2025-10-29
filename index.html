@@ -164,6 +164,7 @@ async function loadSuivi(){
   if(!numSNCB){
     enginesBody.innerHTML = '<tr><td colspan="3" style="color:var(--muted)">Saisissez votre numéro SNCB et cliquez sur Valider</td></tr>';
     lastOpenedEl.textContent = 'Dernière ouverture : —';
+    loader.style.display='none';
     return;
   }
   loader.style.display='flex';
@@ -256,7 +257,12 @@ document.querySelectorAll('.tab').forEach(btn=>{
 document.getElementById('sncbConfirm').onclick=async ()=>{
   const v=document.getElementById('sncbInput').value.trim();
   const regex=/^[0-9]{9}$/;
-  if(!regex.test(v)){alert('Numéro SNCB invalide. 9 chiffres requis'); return;}
+  if(!regex.test(v)){
+    loader.style.display='none'; // <-- correction du bug
+    alert('Numéro SNCB invalide. 9 chiffres requis');
+    return;
+  }
+  loader.style.display='flex'; // loader seulement si numéro correct
   numSNCB=v; localStorage.setItem('numSNCB',v);
   await loadSuivi();
 };
