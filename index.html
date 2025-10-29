@@ -41,8 +41,6 @@ input[type="text"], input[type="date"]{padding:8px 10px;border-radius:10px;borde
 .dateText{color:var(--muted);font-size:13px}
 .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .codeLegend{color:var(--muted);font-size:13px;margin-left:auto}
-.status{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;font-weight:700;color:white;font-size:13px}
-.status .dot{width:10px;height:10px;border-radius:50%}
 .modal{display:none;position:fixed;inset:0;background:rgba(2,6,23,0.45);backdrop-filter:blur(2px);justify-content:center;align-items:center;padding:16px;z-index:60}
 .modal-inner{background:var(--card);border-radius:12px;padding:14px;max-width:520px;width:100%;box-shadow:0 10px 40px rgba(2,6,23,0.12)}
 .modal-inner h3{margin-top:0}
@@ -258,11 +256,10 @@ document.getElementById('sncbConfirm').onclick=async ()=>{
   const v=document.getElementById('sncbInput').value.trim();
   const regex=/^[0-9]{9}$/;
   if(!regex.test(v)){
-    loader.style.display='none'; // <-- correction du bug
     alert('Numéro SNCB invalide. 9 chiffres requis');
     return;
   }
-  loader.style.display='flex'; // loader seulement si numéro correct
+  loader.style.display='flex'; // seulement si numéro correct
   numSNCB=v; localStorage.setItem('numSNCB',v);
   await loadSuivi();
 };
