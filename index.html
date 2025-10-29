@@ -1,290 +1,410 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Suivi Connaissance & Préparation VKPC</title>
-  <style>
-    :root {
-      --primary: #0078d7;
-      --primary-light: #e7f1ff;
-      --text: #222;
-      --bg: #f9f9f9;
-      --card-bg: #fff;
-      --border: #ddd;
-    }
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Suivi Connaissance & Préparation VKPC</title>
+<style>
+:root{
+  --bg:#f7f7f8;
+  --card:#ffffff;
+  --text:#111827;
+  --muted:#6b7280;
+  --primary:#4B5563; /* gris demandé */
+  --accent:#0ea5a4;
+  --green:#16a34a;
+  --orange:#f59e0b;
+  --red:#ef4444;
+  --border: rgba(17,24,39,0.06);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);padding:16px;display:flex;justify-content:center;min-height:100vh;}
+.app{width:100%;max-width:980px;}
+.header{display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.title{font-size:20px;font-weight:700;color:var(--primary)}
+.subtitle{font-size:13px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:0 6px 20px rgba(16,24,40,0.04)}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tab{flex:1;padding:10px;border-radius:10px;background:#eef2f6;border:none;color:var(--primary);font-weight:700;cursor:pointer}
+.tab.active{background:var(--primary);color:#fff;box-shadow:0 6px 18px rgba(16,24,40,0.06)}
+.user-form{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+input[type="text"], input[type="date"]{padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:#fff;color:var(--text);font-size:14px}
+.btn{padding:8px 12px;border-radius:10px;border:0;font-weight:700;cursor:pointer;font-size:14px}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.small{font-size:13px;padding:6px 10px}
+.table{width:100%;border-collapse:collapse;font-size:14px}
+.table th{background:transparent;padding:10px 8px;text-align:left;color:var(--muted);font-weight:700}
+.table td{padding:10px 8px;border-top:1px solid var(--border);vertical-align:middle}
+.name{font-weight:700}
+.dateText{color:var(--muted);font-size:13px}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.codeLegend{color:var(--muted);font-size:13px;margin-left:auto}
+.status{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;font-weight:700;color:white;font-size:13px}
+.status .dot{width:10px;height:10px;border-radius:50%}
+.modal{display:none;position:fixed;inset:0;background:rgba(2,6,23,0.45);backdrop-filter:blur(2px);justify-content:center;align-items:center;padding:16px;z-index:60}
+.modal-inner{background:var(--card);border-radius:12px;padding:14px;max-width:520px;width:100%;box-shadow:0 10px 40px rgba(2,6,23,0.12)}
+.modal-inner h3{margin-top:0}
+.checklist-list{list-style:none;padding:0;margin:8px 0}
+.checklist-list li{padding:6px 0;border-bottom:1px dashed rgba(0,0,0,0.04)}
+.footerNote{font-size:13px;color:var(--muted);text-align:center;margin-top:12px}
 
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    h2 {
-      margin-top: 20px;
-      color: var(--primary);
-      font-size: 1.4rem;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-      width: 90%;
-      max-width: 800px;
-      margin-top: 15px;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin: 10px 0;
-      width: 90%;
-      max-width: 800px;
-    }
-
-    .tab {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      background: #e9ecef;
-      border-radius: 10px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .tab.active {
-      background: var(--primary);
-      color: white;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    }
-
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    input, button {
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      font-size: 1rem;
-    }
-
-    button {
-      background: var(--primary);
-      color: white;
-      cursor: pointer;
-      border: none;
-      font-weight: 600;
-      transition: background 0.2s;
-    }
-
-    button:hover { background: #005fa3; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-
-    th, td {
-      padding: 10px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-
-    th {
-      background: var(--primary-light);
-      color: var(--primary);
-      font-weight: 600;
-    }
-
-    .btn-secondary {
-      background: #ccc;
-      color: #000;
-    }
-
-    /* Modal checklist */
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .modal-content {
-      background: var(--card-bg);
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 400px;
-      width: 90%;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    }
-
-    .modal-content h3 { margin-top: 0; }
-    .modal-content ul { list-style: none; padding: 0; }
-    .modal-content li { margin: 6px 0; }
-
-    @media (max-width: 600px) {
-      th, td { font-size: 0.9rem; padding: 8px; }
-      h2 { font-size: 1.2rem; }
-    }
-  </style>
+/* Responsive - mobile: transform rows to cards and use data-label */
+@media (max-width:680px){
+  .tabs{flex-direction:row}
+  .table, thead, tbody, th, td, tr{display:block;width:100%}
+  thead{display:none}
+  tbody tr{display:flex;flex-direction:column;padding:10px;margin-bottom:8px;border-radius:10px;background:var(--card);box-shadow:0 6px 20px rgba(2,6,23,0.04)}
+  td{display:flex;justify-content:space-between;align-items:center;padding:8px}
+  td[data-label]:before{content:attr(data-label);color:var(--muted);font-weight:700;margin-right:8px;flex-basis:40%}
+  .controls{flex-direction:column;align-items:flex-start}
+  .user-form{flex-direction:column;align-items:stretch}
+}
+</style>
 </head>
 <body>
-  <h2>Suivi Connaissance & Préparation VKPC</h2>
-
-  <nav class="tabs">
-    <button class="tab active" data-tab="connaissance">Suivi Connaissance</button>
-    <button class="tab" data-tab="preparation">Préparation VKPC</button>
-  </nav>
-
-  <!-- Onglet 1 -->
-  <section id="tab-connaissance" class="tab-content active">
-    <div class="card">
-      <div class="user-form">
-        <input type="text" id="sncbInput" placeholder="Numéro SNCB">
-        <button id="sncbConfirm">Valider</button>
-        <button id="logoutBtn" class="btn-secondary">Déconnexion</button>
+  <div class="app">
+    <div class="header">
+      <div>
+        <div class="title">Suivi Connaissance – VKPC</div>
+        <div class="subtitle">Onglets : Suivi & Préparation (check-lists par engin)</div>
       </div>
-      <p id="lastOpened">Dernière ouverture : —</p>
-      <table id="enginesTable">
-        <thead><tr><th>Engin</th><th>Dernier parcours</th><th>Action</th></tr></thead>
-        <tbody id="enginesBody"></tbody>
-      </table>
+      <div class="dateInfo codeLegend" id="lastOpened">Dernière ouverture : —</div>
     </div>
-  </section>
 
-  <!-- Onglet 2 -->
-  <section id="tab-preparation" class="tab-content">
-    <div class="card">
-      <h3>Préparation des engins (VKPC)</h3>
-      <table id="prepTable">
-        <thead><tr><th>Engin</th><th>Check-list</th></tr></thead>
+    <div class="tabs" role="tablist" aria-label="Navigation onglets">
+      <button class="tab active" data-tab="connaissance" role="tab" aria-selected="true">Suivi Connaissance</button>
+      <button class="tab" data-tab="preparation" role="tab">Préparation VKPC</button>
+    </div>
+
+    <!-- Onglet Suivi -->
+    <section id="tab-connaissance" class="card tab-content active" role="tabpanel">
+      <div class="user-form" aria-label="Connexion utilisateur">
+        <input id="sncbInput" type="text" placeholder="Numéro SNCB (ex: 123456)" aria-label="Numéro SNCB" />
+        <button id="sncbConfirm" class="btn btn-primary">Valider</button>
+        <button id="logoutBtn" class="btn btn-ghost">Déconnexion</button>
+        <div style="flex:1"></div>
+        <div class="codeLegend">Codes : 🟢 &lt;9 mois — 🟠 9–11 — 🔴 ≥12</div>
+      </div>
+
+      <table class="table" aria-label="Tableau des engins">
+        <thead>
+          <tr><th>Engin</th><th>Dernier parcours</th><th style="width:260px;text-align:right">Actions</th></tr>
+        </thead>
+        <tbody id="enginesBody">
+          <!-- lignes générées par JS -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Onglet Préparation -->
+    <section id="tab-preparation" class="card tab-content" role="tabpanel" aria-hidden="true" style="display:none">
+      <h3 style="margin:0 0 8px 0">Préparation VKPC — check-lists</h3>
+      <p style="margin:0 0 12px 0;color:var(--muted)">Ouvre la check-list spécifique à l'engin pour l'afficher (cases locales, non enregistrées).</p>
+      <table class="table" aria-label="Table préparation">
+        <thead><tr><th>Engin</th><th style="text-align:right">Check-list</th></tr></thead>
         <tbody id="prepBody"></tbody>
       </table>
-    </div>
-  </section>
+    </section>
 
-  <!-- Modale de checklist -->
-  <div id="checklistModal" class="modal">
-    <div class="modal-content">
-      <h3 id="modalTitle"></h3>
-      <ul id="checklistItems">
-        <li><label><input type="checkbox"> Freins testés</label></li>
-        <li><label><input type="checkbox"> Pression d’air correcte</label></li>
-        <li><label><input type="checkbox"> Feux et phares OK</label></li>
-        <li><label><input type="checkbox"> Signalisation cabine active</label></li>
-        <li><label><input type="checkbox"> Contrôle visuel extérieur</label></li>
-      </ul>
-      <button id="closeModal">Fermer</button>
+    <div class="footerNote">Partage : héberge via GitHub Pages. Les données sont stockées par numéro SNCB dans Firestore.</div>
+  </div>
+
+  <!-- Modal checklist -->
+  <div id="checklistModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-inner" role="document">
+      <h3 id="modalTitle">Préparation</h3>
+      <ul id="checklistItems" class="checklist-list"></ul>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+        <button id="closeModalBtn" class="btn btn-ghost">Fermer</button>
+      </div>
     </div>
   </div>
 
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+<script type="module">
+/* ======================
+   Firebase initialisation
+   ====================== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBtRfiPJXTd-_RA73DPMpAcd15P7TcwHy0",
-      authDomain: "app-suivi-29ec4.firebaseapp.com",
-      projectId: "app-suivi-29ec4",
-      storageBucket: "app-suivi-29ec4.firebasestorage.app",
-      messagingSenderId: "843017578863",
-      appId: "1:843017578863:web:9a49335b7a2699986ae09a"
+const firebaseConfig = {
+  apiKey: "AIzaSyBtRfiPJXTd-_RA73DPMpAcd15P7TcwHy0",
+  authDomain: "app-suivi-29ec4.firebaseapp.com",
+  projectId: "app-suivi-29ec4",
+  storageBucket: "app-suivi-29ec4.firebasestorage.app",
+  messagingSenderId: "843017578863",
+  appId: "1:843017578863:web:9a49335b7a2699986ae09a"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* ======================
+   Configuration & données (exemples)
+   ====================== */
+const ENGINES = ['HLE18','HLE13','M7','HVR M6','HVR i1','AM08','Micheline'];
+
+/* checklists par engin - remplace par les vraies listes quand tu les fourniras */
+const CHECKLISTS = {
+  "HLE18":[
+    "Inspection visuelle caisse & pantographes",
+    "Test disjoncteur principal",
+    "Test des freins & compresseur",
+    "Contrôle radio cabine & signalisation",
+    "Contrôle circuits sécurité"
+  ],
+  "HLE13":[
+    "Pantographes & isolateurs",
+    "Test tension ligne",
+    "Contrôle relais de traction",
+    "Éclairage cabine",
+    "Radio sol-train"
+  ],
+  "M7":[
+    "Inspection train complet",
+    "Test freins automatiques & portes",
+    "Vérif. coupleur automatique",
+    "Contrôle HVAC",
+    "Activation PIS"
+  ],
+  "HVR M6":[
+    "Frein direct/indirect",
+    "Portes voyageurs",
+    "Contrôle bogies & sablières",
+    "Test traction à vide",
+    "Éclairage front"
+  ],
+  "HVR i1":[
+    "Frein de parc",
+    "Batteries 24V",
+    "Compresseur",
+    "Essuie-glaces & phares",
+    "Radio & avertisseur"
+  ],
+  "AM08":[
+    "Inspection caisse & attelage",
+    "Pantographes",
+    "Test frein automatique",
+    "Contrôle TBL1+",
+    "Feux signalisation"
+  ],
+  "Micheline":[
+    "Contrôle carrosserie",
+    "Niveaux huile/carburant",
+    "Test klaxon & feux",
+    "Pneus & freins",
+    "Essai moteur"
+  ]
+};
+
+/* ======================
+   Utilitaires date
+   ====================== */
+const todayISO = new Date().toISOString().slice(0,10);
+function diffMonthsDays(start, end){
+  if(!start || start > end) return {months:0, days:0};
+  let years = end.getFullYear() - start.getFullYear();
+  let months = end.getMonth() - start.getMonth() + years*12;
+  let dayDiff = end.getDate() - start.getDate();
+  if(dayDiff < 0){
+    months--;
+    const temp = new Date(start.getFullYear(), start.getMonth()+months, start.getDate());
+    dayDiff = Math.round((end - temp)/(24*60*60*1000));
+  }
+  return {months: Math.max(0, months), days: Math.max(0, dayDiff)};
+}
+
+/* ======================
+   DOM refs
+   ====================== */
+const enginesBody = document.getElementById('enginesBody');
+const prepBody = document.getElementById('prepBody');
+const modal = document.getElementById('checklistModal');
+const modalTitle = document.getElementById('modalTitle');
+const checklistItems = document.getElementById('checklistItems');
+const lastOpenedEl = document.getElementById('lastOpened');
+
+/* ======================
+   Auth / session (simple)
+   ====================== */
+let numSNCB = localStorage.getItem('numSNCB') || null;
+
+/* ======================
+   Rendu onglet Suivi
+   ====================== */
+async function loadSuivi(){
+  if(!numSNCB){
+    enginesBody.innerHTML = '<tr><td colspan="3" style="color:var(--muted)">Saisissez votre numéro SNCB et cliquez sur Valider</td></tr>';
+    lastOpenedEl.textContent = 'Dernière ouverture : —';
+    return;
+  }
+  const ref = doc(db, 'conducteurs', numSNCB);
+  const snap = await getDoc(ref);
+  const data = snap.exists() ? snap.data() : {};
+
+  enginesBody.innerHTML = '';
+  ENGINES.forEach(engine=>{
+    const tr = document.createElement('tr');
+
+    // Engin
+    const tdName = document.createElement('td');
+    tdName.setAttribute('data-label','Engin');
+    tdName.innerHTML = `<div class="name">${engine}</div>`;
+
+    // Dernier parcours (text)
+    const tdDateText = document.createElement('td');
+    tdDateText.setAttribute('data-label','Dernier parcours');
+    tdDateText.innerHTML = data[engine] ? `<div class="dateText">${data[engine]}</div>` : `<div class="dateText">—</div>`;
+
+    // Actions: datepicker + bouton "Enregistrer la date choisie" + bouton "Parcouru aujourd'hui"
+    const tdActions = document.createElement('td');
+    tdActions.setAttribute('data-label','Actions');
+
+    // date input prefilled with recorded date OR today (does not save automatically)
+    const dateInput = document.createElement('input');
+    dateInput.type = 'date';
+    dateInput.value = data[engine] || todayISO;
+    dateInput.setAttribute('aria-label', `Sélectionner date pour ${engine}`);
+
+    // button save selected date
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'btn btn-ghost small';
+    saveBtn.textContent = 'Enregistrer';
+    saveBtn.onclick = async ()=>{
+      if(!numSNCB) return alert('Numéro SNCB requis');
+      const val = dateInput.value || todayISO;
+      await setDoc(doc(db,'conducteurs',numSNCB), {[engine]: val}, {merge:true});
+      await loadSuivi();
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const engines = ["HLE18","HLE13","M7","HVR M6","HVR i1","AM08","Micheline"];
-
-    // --- Gestion des onglets ---
-    document.querySelectorAll('.tab').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(s=>s.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
-      });
-    });
-
-    // --- Firestore & affichage ---
-    let numSNCB = localStorage.getItem("numSNCB");
-    const enginesBody = document.getElementById("enginesBody");
-    const lastOpened = document.getElementById("lastOpened");
-
-    async function loadData() {
-      if (!numSNCB) return;
-      const ref = doc(db, "conducteurs", numSNCB);
-      const snap = await getDoc(ref);
-      const data = snap.exists() ? snap.data() : {};
-
-      enginesBody.innerHTML = "";
-      engines.forEach(e => {
-        const date = data[e] || "—";
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${e}</td>
-          <td>${date}</td>
-          <td><button onclick="updateDate('${e}')">Mettre à jour</button></td>`;
-        enginesBody.appendChild(tr);
-      });
-      lastOpened.textContent = "Dernière ouverture : " + new Date().toLocaleString();
-    }
-
-    window.updateDate = async function(engine) {
-      const today = new Date().toISOString().split("T")[0];
-      const ref = doc(db, "conducteurs", numSNCB);
-      await setDoc(ref, { [engine]: today }, { merge: true });
-      loadData();
-    }
-
-    document.getElementById("sncbConfirm").onclick = () => {
-      numSNCB = document.getElementById("sncbInput").value.trim();
-      if (!numSNCB) return alert("Entrez un numéro SNCB !");
-      localStorage.setItem("numSNCB", numSNCB);
-      loadData();
+    // button set to today
+    const todayBtn = document.createElement('button');
+    todayBtn.className = 'btn btn-primary small';
+    todayBtn.textContent = 'Parcouru aujourd\'hui';
+    todayBtn.onclick = async ()=>{
+      if(!numSNCB) return alert('Numéro SNCB requis');
+      const val = todayISO;
+      await setDoc(doc(db,'conducteurs',numSNCB), {[engine]: val}, {merge:true});
+      await loadSuivi();
     };
 
-    document.getElementById("logoutBtn").onclick = () => {
-      localStorage.removeItem("numSNCB");
-      numSNCB = null;
-      enginesBody.innerHTML = "";
-      document.getElementById("sncbInput").value = "";
-      lastOpened.textContent = "Dernière ouverture : —";
-    };
+    // pack buttons
+    const container = document.createElement('div');
+    container.className = 'controls';
+    container.appendChild(dateInput);
+    container.appendChild(saveBtn);
+    container.appendChild(todayBtn);
 
-    if (numSNCB) loadData();
+    tdActions.style.textAlign = 'right';
+    tdActions.appendChild(container);
 
-    // --- Préparation VKPC ---
-    const prepBody = document.getElementById("prepBody");
-    engines.forEach(e=>{
-      const tr=document.createElement("tr");
-      tr.innerHTML=`<td>${e}</td><td><button onclick="openChecklist('${e}')">Ouvrir</button></td>`;
-      prepBody.appendChild(tr);
-    });
+    tr.appendChild(tdName);
+    tr.appendChild(tdDateText);
+    tr.appendChild(tdActions);
+    enginesBody.appendChild(tr);
+  });
 
-    window.openChecklist = function(engine){
-      document.getElementById("modalTitle").textContent = "Préparation " + engine;
-      document.querySelectorAll("#checklistItems input").forEach(i=>i.checked=false);
-      document.getElementById("checklistModal").style.display = "flex";
-    };
+  lastOpenedEl.textContent = 'Dernière ouverture : ' + new Date().toLocaleString();
+}
 
-    document.getElementById("closeModal").onclick = () =>
-      document.getElementById("checklistModal").style.display = "none";
-  </script>
+/* ======================
+   Préparation tab render
+   ====================== */
+function loadPreparation(){
+  prepBody.innerHTML = '';
+  ENGINES.forEach(e=>{
+    const tr = document.createElement('tr');
+    const td1 = document.createElement('td');
+    td1.textContent = e;
+    const td2 = document.createElement('td');
+    td2.style.textAlign = 'right';
+    const openBtn = document.createElement('button');
+    openBtn.className = 'btn btn-primary small';
+    openBtn.textContent = 'Ouvrir la check-list';
+    openBtn.onclick = ()=> openChecklist(e);
+    td2.appendChild(openBtn);
+    tr.appendChild(td1);
+    tr.appendChild(td2);
+    prepBody.appendChild(tr);
+  });
+}
+
+/* ======================
+   Check-list modal
+   ====================== */
+function openChecklist(engine){
+  modalTitle.textContent = `Préparation — ${engine}`;
+  checklistItems.innerHTML = '';
+  const list = CHECKLISTS[engine] || ['Aucune check-list définie'];
+  list.forEach(it=>{
+    const li = document.createElement('li');
+    li.innerHTML = `<label style="display:flex;gap:10px;align-items:center"><input type="checkbox" aria-label="${it}"> <span>${it}</span></label>`;
+    checklistItems.appendChild(li);
+  });
+  modal.style.display = 'flex';
+  modal.setAttribute('aria-hidden','false');
+}
+document.getElementById('closeModalBtn').onclick = ()=>{ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); };
+
+/* ======================
+   Tabs behaviour
+   ====================== */
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(s=>{ s.classList.remove('active'); s.style.display='none'; s.setAttribute('aria-hidden','true'); });
+    btn.classList.add('active');
+    const t = btn.dataset.tab;
+    const el = document.getElementById('tab-'+t);
+    el.classList.add('active');
+    el.style.display = (t === 'connaissance') ? 'block' : 'block';
+    el.setAttribute('aria-hidden','false');
+    if(t==='preparation') loadPreparation();
+    if(t==='connaissance') loadSuivi();
+  });
+});
+
+/* ======================
+   Connexion utilisateur UI
+   ====================== */
+document.getElementById('sncbConfirm').onclick = async ()=>{
+  const v = document.getElementById('sncbInput').value.trim();
+  if(!v){ alert('Entrez votre numéro SNCB'); return; }
+  numSNCB = v;
+  localStorage.setItem('numSNCB', numSNCB);
+  await loadSuivi();
+};
+
+document.getElementById('logoutBtn').onclick = ()=>{
+  localStorage.removeItem('numSNCB');
+  numSNCB = null;
+  document.getElementById('sncbInput').value = '';
+  enginesBody.innerHTML = '';
+  lastOpenedEl.textContent = 'Dernière ouverture : —';
+};
+
+/* ======================
+   Add engine / reset utilities (kept lightweight)
+   ====================== */
+window.addEngine = async function(name){
+  if(!name) return;
+  if(!ENGINES.includes(name)) ENGINES.push(name);
+  // create empty field for user in Firestore if logged
+  if(numSNCB) await setDoc(doc(db,'conducteurs',numSNCB), {[name]: null}, {merge:true});
+  loadSuivi();
+};
+
+document.getElementById('prepBody').innerHTML = ''; // initial
+loadPreparation();
+
+/* auto-login if stored */
+if(localStorage.getItem('numSNCB')){
+  document.getElementById('sncbInput').value = localStorage.getItem('numSNCB');
+  document.getElementById('sncbConfirm').click();
+}
+</script>
 </body>
 </html>
