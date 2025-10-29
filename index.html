@@ -1,239 +1,290 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Suivi Connaissance – Matériel Ferroviaire</title>
-<style>
-:root{
-  --bg:#f5f5f5;
-  --card:#ffffff;
-  --text:#202124;
-  --muted:#5f6368;
-  --primary:#1e88e5;
-  --accent:#03dac6;
-  --green:#03dac6;
-  --orange:#ffb300;
-  --red:#cf6679;
-  --button-hover:rgba(30,136,229,0.1);
-  font-family:'Roboto',sans-serif;
-}
-*{box-sizing:border-box;transition: all 0.2s ease;}
-body{margin:0;background:var(--bg);color:var(--text);padding:16px;display:flex;justify-content:center;font-family:Roboto,sans-serif;}
-.app{width:100%;max-width:900px;}
-header{margin-bottom:16px;}
-.title{font-weight:700;font-size:24px;color:var(--text);}
-.subtitle{font-size:14px;color:var(--muted);}
-.last-open{font-size:13px;color:var(--muted);margin-top:4px;}
-.card{background:var(--card);border-radius:12px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-table{width:100%;border-collapse:collapse;font-size:14px;}
-thead th{text-align:left;padding:10px 6px;color:var(--muted);font-weight:500;font-size:13px;}
-tbody td{padding:8px 6px;border-top:1px solid rgba(0,0,0,0.05);}
-.name{font-weight:600;}
-.date{color:var(--muted);}
-.status{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:10px;font-weight:500;font-size:12px;color:white;}
-.status-icon{width:8px;height:8px;border-radius:50%;display:inline-block;}
-.btn{padding:6px 12px;border-radius:10px;border:none;font-weight:600;font-size:13px;cursor:pointer;transition:all 0.2s;}
-.btn-primary{background:var(--primary);color:white;}
-.btn-primary:hover{background:var(--button-hover);}
-.btn-secondary{background:transparent;border:1px solid var(--muted);color:var(--text);}
-.btn-secondary:hover{background:rgba(0,0,0,0.05);}
-input[type="date"], input[type="text"]{padding:5px 8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:#fafafa;color:var(--text);}
-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 4px var(--accent);}
-.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-.user-form{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
-footer{margin-top:12px;color:var(--muted);font-size:12px;text-align:center;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suivi Connaissance & Préparation VKPC</title>
+  <style>
+    :root {
+      --primary: #0078d7;
+      --primary-light: #e7f1ff;
+      --text: #222;
+      --bg: #f9f9f9;
+      --card-bg: #fff;
+      --border: #ddd;
+    }
 
-/* Responsive mobile avec data-label */
-@media (max-width:640px){
-  thead{display:none;}
-  table, tbody, thead, tr, td{display:block;width:100%;}
-  tbody tr{display:flex;flex-direction:column;padding:8px 0;margin-bottom:6px;background:#ffffff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
-  td{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;position:relative;}
-  td:before{
-    content:attr(data-label);
-    font-weight:600;
-    color: var(--muted);
-    display:inline-block;
-    width:120px;
-    flex-shrink:0;
-  }
-  .action-group{flex-direction:column;gap:4px;align-items:flex-start;margin-top:4px;}
-}
-</style>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h2 {
+      margin-top: 20px;
+      color: var(--primary);
+      font-size: 1.4rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      width: 90%;
+      max-width: 800px;
+      margin-top: 15px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin: 10px 0;
+      width: 90%;
+      max-width: 800px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: #e9ecef;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    input, button {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 1rem;
+    }
+
+    button {
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+      border: none;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    button:hover { background: #005fa3; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .btn-secondary {
+      background: #ccc;
+      color: #000;
+    }
+
+    /* Modal checklist */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-content h3 { margin-top: 0; }
+    .modal-content ul { list-style: none; padding: 0; }
+    .modal-content li { margin: 6px 0; }
+
+    @media (max-width: 600px) {
+      th, td { font-size: 0.9rem; padding: 8px; }
+      h2 { font-size: 1.2rem; }
+    }
+  </style>
 </head>
 <body>
-<div class="app">
-<header>
-  <div>
-    <div class="title">Suivi Connaissance – Matériel Ferroviaire</div>
-    <div class="subtitle">Vue rapide — mise à jour automatique</div>
+  <h2>Suivi Connaissance & Préparation VKPC</h2>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="connaissance">Suivi Connaissance</button>
+    <button class="tab" data-tab="preparation">Préparation VKPC</button>
+  </nav>
+
+  <!-- Onglet 1 -->
+  <section id="tab-connaissance" class="tab-content active">
+    <div class="card">
+      <div class="user-form">
+        <input type="text" id="sncbInput" placeholder="Numéro SNCB">
+        <button id="sncbConfirm">Valider</button>
+        <button id="logoutBtn" class="btn-secondary">Déconnexion</button>
+      </div>
+      <p id="lastOpened">Dernière ouverture : —</p>
+      <table id="enginesTable">
+        <thead><tr><th>Engin</th><th>Dernier parcours</th><th>Action</th></tr></thead>
+        <tbody id="enginesBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Onglet 2 -->
+  <section id="tab-preparation" class="tab-content">
+    <div class="card">
+      <h3>Préparation des engins (VKPC)</h3>
+      <table id="prepTable">
+        <thead><tr><th>Engin</th><th>Check-list</th></tr></thead>
+        <tbody id="prepBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Modale de checklist -->
+  <div id="checklistModal" class="modal">
+    <div class="modal-content">
+      <h3 id="modalTitle"></h3>
+      <ul id="checklistItems">
+        <li><label><input type="checkbox"> Freins testés</label></li>
+        <li><label><input type="checkbox"> Pression d’air correcte</label></li>
+        <li><label><input type="checkbox"> Feux et phares OK</label></li>
+        <li><label><input type="checkbox"> Signalisation cabine active</label></li>
+        <li><label><input type="checkbox"> Contrôle visuel extérieur</label></li>
+      </ul>
+      <button id="closeModal">Fermer</button>
+    </div>
   </div>
-  <div class="last-open" id="lastOpened">Dernière ouverture : —</div>
-</header>
 
-<!-- Champ numéro SNCB avec bouton Déconnexion -->
-<div class="card user-form">
-  <input type="text" id="sncbInput" placeholder="Entrez votre numéro SNCB" aria-label="Numéro SNCB">
-  <button id="sncbConfirm" class="btn btn-primary small">Valider</button>
-  <button id="logoutBtn" class="btn btn-secondary small">Déconnexion</button>
-</div>
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-<section class="card">
-<h3 style="margin:0 0 12px 0">Liste des engins</h3>
-<table>
-<thead>
-<tr>
-<th>Engin</th>
-<th>Dernier parcours</th>
-<th>Temps écoulé</th>
-<th style="text-align:right">Action</th>
-</tr>
-</thead>
-<tbody id="engines"></tbody>
-</table>
-<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-  <input type="text" id="newEngine" placeholder="Ajouter engin" class="small" aria-label="Ajouter engin"/>
-  <button id="addEngine" class="btn btn-primary small">Ajouter</button>
-  <button id="resetAll" class="btn btn-secondary small">Réinitialiser toutes les dates</button>
-  <div style="flex:1"></div>
-  <div class="muted">Codes : 🟢 &lt;9 mois — 🟠 9–11 — 🔴 ≥12</div>
-</div>
-</section>
-
-<footer class="muted">Chaque utilisateur a ses données individuelles stockées dans Firestore.</footer>
-</div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBtRfiPJXTd-_RA73DPMpAcd15P7TcwHy0",
-  authDomain: "app-suivi-29ec4.firebaseapp.com",
-  projectId: "app-suivi-29ec4",
-  storageBucket: "app-suivi-29ec4.firebasestorage.app",
-  messagingSenderId: "843017578863",
-  appId: "1:843017578863:web:9a49335b7a2699986ae09a"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-let numSNCB = null;
-const enginesList = ['HLE18','HLE13','M7','HVR M6','HVR i1','AM08','Micheline'];
-let data = {};
-
-// Valider numéro SNCB
-document.getElementById('sncbConfirm').onclick = async () => {
-  const input = document.getElementById('sncbInput').value.trim();
-  if(!input) return alert("Entrez votre numéro SNCB !");
-  numSNCB = input;
-  localStorage.setItem('numSNCB', numSNCB);
-  await loadEngines();
-  document.querySelector('.user-form').style.display = 'flex';
-  document.getElementById('sncbInput').style.display = 'none';
-  document.getElementById('sncbConfirm').style.display = 'none';
-};
-
-// Bouton Déconnexion
-document.getElementById('logoutBtn').onclick = () => {
-  localStorage.removeItem('numSNCB');
-  numSNCB = null;
-  data = {};
-  document.getElementById('sncbInput').value = '';
-  document.querySelector('.user-form').style.display = 'flex';
-  document.getElementById('sncbInput').style.display = 'inline-block';
-  document.getElementById('sncbConfirm').style.display = 'inline-block';
-  document.getElementById('engines').innerHTML = '';
-  document.getElementById('lastOpened').textContent = 'Dernière ouverture : —';
-};
-
-// Charger les données Firestore
-async function loadEngines(){
-  const docRef = doc(db, 'conducteurs', numSNCB);
-  const docSnap = await getDoc(docRef);
-  if(docSnap.exists()){ data = docSnap.data(); }
-  renderTable();
-}
-
-// Calcul mois/jours écoulés
-function diffMonthsDays(start,end){
-  if(!start || start> end) return {months:0,days:0};
-  let years = end.getFullYear()-start.getFullYear();
-  let months = end.getMonth()-start.getMonth()+years*12;
-  let dayDiff=end.getDate()-start.getDate();
-  if(dayDiff<0){months--; const temp=new Date(start.getFullYear(),start.getMonth()+months,start.getDate()); dayDiff=Math.round((end-temp)/86400000);}
-  return {months:Math.max(0,months),days:Math.max(0,dayDiff)};
-}
-
-// Affichage tableau
-function renderTable(){
-  if(!numSNCB) return;
-  document.getElementById('lastOpened').textContent = 'Dernière ouverture : '+new Date().toISOString().slice(0,10);
-  const tbody=document.getElementById('engines'); tbody.innerHTML='';
-  enginesList.forEach(e=>{
-    const tr=document.createElement('tr');
-    const tdName=document.createElement('td'); tdName.setAttribute('data-label','Engin'); tdName.innerHTML='<div class="name">'+e+'</div>';
-    const tdDate=document.createElement('td'); tdDate.setAttribute('data-label','Dernier parcours'); tdDate.innerHTML=data[e]?'<div class="date">'+data[e]+'</div>':'<div class="date">—</div>';
-    const tdElapsed=document.createElement('td'); tdElapsed.setAttribute('data-label','Temps écoulé');
-    const span=document.createElement('span'); span.className='status';
-    const icon=document.createElement('span'); icon.className='status-icon';
-    if(data[e]){
-      const diff=diffMonthsDays(new Date(data[e]),new Date());
-      span.textContent=diff.months+' mois'+(diff.days>0?' et '+diff.days+' j':'');
-      if(diff.months>=12){span.style.background='var(--red)'; icon.style.background='var(--red)';}
-      else if(diff.months>=9){span.style.background='var(--orange)'; icon.style.background='var(--orange)';}
-      else {span.style.background='var(--green)'; icon.style.background='var(--green)';}
-    } else {span.textContent='Aucune donnée'; span.style.background='rgba(0,0,0,0.1)'; span.style.color='var(--text)'; icon.style.background='rgba(0,0,0,0.3)';}
-    span.prepend(icon); tdElapsed.appendChild(span);
-
-    const tdAction=document.createElement('td'); tdAction.setAttribute('data-label','Action'); tdAction.style.textAlign='right'; tdAction.className='action-group';
-    const btnToday=document.createElement('button'); btnToday.textContent='Parcouru aujourd\'hui'; btnToday.className='btn btn-primary small';
-    btnToday.onclick=async ()=>{
-      const today=new Date().toISOString().slice(0,10);
-      data[e]=today;
-      await setDoc(doc(db,'conducteurs',numSNCB),{[e]:today},{merge:true});
-      renderTable();
+    const firebaseConfig = {
+      apiKey: "AIzaSyBtRfiPJXTd-_RA73DPMpAcd15P7TcwHy0",
+      authDomain: "app-suivi-29ec4.firebaseapp.com",
+      projectId: "app-suivi-29ec4",
+      storageBucket: "app-suivi-29ec4.firebasestorage.app",
+      messagingSenderId: "843017578863",
+      appId: "1:843017578863:web:9a49335b7a2699986ae09a"
     };
-    const inputDate=document.createElement('input'); inputDate.type='date'; inputDate.value=data[e]||'';
-    inputDate.onchange=async ()=>{
-      if(inputDate.value){
-        data[e]=inputDate.value;
-        await setDoc(doc(db,'conducteurs',numSNCB),{[e]:inputDate.value},{merge:true});
-        renderTable();
-      }
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const engines = ["HLE18","HLE13","M7","HVR M6","HVR i1","AM08","Micheline"];
+
+    // --- Gestion des onglets ---
+    document.querySelectorAll('.tab').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(s=>s.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // --- Firestore & affichage ---
+    let numSNCB = localStorage.getItem("numSNCB");
+    const enginesBody = document.getElementById("enginesBody");
+    const lastOpened = document.getElementById("lastOpened");
+
+    async function loadData() {
+      if (!numSNCB) return;
+      const ref = doc(db, "conducteurs", numSNCB);
+      const snap = await getDoc(ref);
+      const data = snap.exists() ? snap.data() : {};
+
+      enginesBody.innerHTML = "";
+      engines.forEach(e => {
+        const date = data[e] || "—";
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${e}</td>
+          <td>${date}</td>
+          <td><button onclick="updateDate('${e}')">Mettre à jour</button></td>`;
+        enginesBody.appendChild(tr);
+      });
+      lastOpened.textContent = "Dernière ouverture : " + new Date().toLocaleString();
+    }
+
+    window.updateDate = async function(engine) {
+      const today = new Date().toISOString().split("T")[0];
+      const ref = doc(db, "conducteurs", numSNCB);
+      await setDoc(ref, { [engine]: today }, { merge: true });
+      loadData();
+    }
+
+    document.getElementById("sncbConfirm").onclick = () => {
+      numSNCB = document.getElementById("sncbInput").value.trim();
+      if (!numSNCB) return alert("Entrez un numéro SNCB !");
+      localStorage.setItem("numSNCB", numSNCB);
+      loadData();
     };
-    tdAction.appendChild(btnToday);
-    tdAction.appendChild(inputDate);
-    tr.appendChild(tdName); tr.appendChild(tdDate); tr.appendChild(tdElapsed); tr.appendChild(tdAction);
-    tbody.appendChild(tr);
-  });
-}
 
-// Ajouter engin
-document.getElementById('addEngine').onclick=async ()=>{
-  const val=document.getElementById('newEngine').value.trim();
-  if(!val) return;
-  if(!enginesList.includes(val)) enginesList.push(val);
-  data[val] = null;
-  document.getElementById('newEngine').value='';
-  renderTable();
-  if(numSNCB) await setDoc(doc(db,'conducteurs',numSNCB),{[val]:null},{merge:true});
-};
+    document.getElementById("logoutBtn").onclick = () => {
+      localStorage.removeItem("numSNCB");
+      numSNCB = null;
+      enginesBody.innerHTML = "";
+      document.getElementById("sncbInput").value = "";
+      lastOpened.textContent = "Dernière ouverture : —";
+    };
 
-// Réinitialiser toutes les dates
-document.getElementById('resetAll').onclick=async ()=>{
-  if(!numSNCB) return alert("Numéro SNCB requis");
-  if(!confirm('Réinitialiser toutes les dates ?')) return;
-  enginesList.forEach(e=>data[e]=null);
-  renderTable();
-  await setDoc(doc(db,'conducteurs',numSNCB),enginesList.reduce((acc,e)=>{acc[e]=null;return acc;},{}),{merge:true});
-};
+    if (numSNCB) loadData();
 
-// Auto-load si déjà stocké
-const stored = localStorage.getItem('numSNCB');
-if(stored){ document.getElementById('sncbInput').value = stored; document.getElementById('sncbConfirm').click(); }
-</script>
+    // --- Préparation VKPC ---
+    const prepBody = document.getElementById("prepBody");
+    engines.forEach(e=>{
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td>${e}</td><td><button onclick="openChecklist('${e}')">Ouvrir</button></td>`;
+      prepBody.appendChild(tr);
+    });
+
+    window.openChecklist = function(engine){
+      document.getElementById("modalTitle").textContent = "Préparation " + engine;
+      document.querySelectorAll("#checklistItems input").forEach(i=>i.checked=false);
+      document.getElementById("checklistModal").style.display = "flex";
+    };
+
+    document.getElementById("closeModal").onclick = () =>
+      document.getElementById("checklistModal").style.display = "none";
+  </script>
 </body>
 </html>
